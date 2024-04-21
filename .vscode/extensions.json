@@ -1,0 +1,11 @@
+{
+    "recommendations": [
+        "ms-toolsai.jupyter-keymap",
+        "ms-toolsai.jupyter-renderers",
+        "ms-toolsai.vscode-jupyter-slideshow",
+        "ms-python.vscode-pylance",
+        "vscode-icons-team.vscode-icons",
+        "esbenp.prettier-vscode",
+        "ms-python.python"
+    ]
+}
