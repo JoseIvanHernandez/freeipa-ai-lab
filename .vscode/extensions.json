@@ -6,6 +6,7 @@
         "ms-python.vscode-pylance",
         "vscode-icons-team.vscode-icons",
         "esbenp.prettier-vscode",
-        "ms-python.python"
+        "ms-python.python",
+        "ms-toolsai.jupyter"
     ]
 }
