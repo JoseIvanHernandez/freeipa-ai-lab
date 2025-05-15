@@ -22,7 +22,7 @@ sending patches.
 Use the Go installer:
 
 ```
-  $ go install github.com/git-lfs/lfs-test-server
+  $ go install github.com/git-lfs/lfs-test-server@latest
 ```
 
 
