@@ -1,153 +1,136 @@
-// Almost there.
+# FreeIPA + AI Lab Virtual Network
 
-.LFS Test Server
-======
+> **Author:** Jose Ivan Hernandez  
+> **Focus Areas:** Linux Server Administration (CentOS Stream + RHEL), FreeIPA Identity Management, VyOS Networking, VirtualBox Lab, AI Readiness, Cybersecurity (NCL Spring 2025 Diamond Tier)
 
-[rel]: https://github.com/github/lfs-test-server/releases
-[lfs]: https://github.com/github/git-lfs
-[api]: https://github.com/github/git-lfs/tree/master/docs/api#readme
+---
 
-LFS Test Server is an example server that implements the [Git LFS API][api]. It
-is intended to be used for testing the [Git LFS][lfs] client and is not in a
-production ready state.
+## 🧠 Project Overview
+This repository documents the setup of a virtualized identity-managed AI lab using:
 
-LFS Test Server is written in Go, with pre-compiled binaries available for Mac,
-Windows, Linux, and FreeBSD.
+- **CentOS Stream 9** (for FreeIPA installation)
+- **VyOS 1.5 (Stream-2025-Q1)** as a custom router + DHCP server
+- **Oracle VirtualBox** for network virtualization
+- **FreeIPA** for identity, DNS, and Kerberos authentication
+- **Cybersecurity principles** guided by hands-on NCL experience
+- **AI bootcamp alignment** with Microsoft Learn and Generative AI exploration
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for info on working on LFS Test Server and
-sending patches.
+---
 
-## Installing
+## 🔧 Technologies Used
+| Tool / Stack       | Purpose                                 |
+|-------------------|------------------------------------------|
+| VyOS              | DHCP, Router Simulation, Static Routing |
+| CentOS Stream     | FreeIPA Server, DNS, SSSD               |
+| FreeIPA           | Identity, Authentication, LDAP+Kerberos|
+| VirtualBox        | Virtualization of network and nodes     |
+| Git + GitHub      | Version control and documentation       |
+| Bash & PowerShell | Configuration scripting                 |
 
-Use the Go installer:
+---
 
+## 🧱 Network Architecture
 ```
-  $ go install github.com/git-lfs/lfs-test-server@latest
-```
-
-
-## Building
-
-To build from source, use the Go tools:
-
-```
-  $ go get github.com/git-lfs/lfs-test-server
-```
-
-
-## Running
-
-Running the binary will start an LFS server on `localhost:8080` by default.
-There are few things that can be configured via environment variables:
-
-    LFS_LISTEN      # The address:port the server listens on, default: "tcp://:8080"
-    LFS_HOST        # The host used when the server generates URLs, default: "localhost:8080"
-    LFS_METADB      # The database file the server uses to store meta information, default: "lfs.db"
-    LFS_CONTENTPATH # The path where LFS files are store, default: "lfs-content"
-    LFS_ADMINUSER   # An administrator username, default: not set
-    LFS_ADMINPASS   # An administrator password, default: not set
-    LFS_CERT        # Certificate file for tls
-    LFS_KEY         # tls key
-    LFS_SCHEME      # set to 'https' to override default http
-    LFS_USETUS      # set to 'true' to enable tusd (tus.io) resumable upload server; tusd must be on PATH, installed separately
-    LFS_TUSHOST     # The host used to start the tusd upload server, default "localhost:1080"
-
-If the `LFS_ADMINUSER` and `LFS_ADMINPASS` variables are set, a
-rudimentary admin interface can be accessed via
-`http://$LFS_HOST/mgmt`. Here you can add and remove users, which must
-be done before you can use the server with the client.  If either of
-these variables are not set (which is the default), the administrative
-interface is disabled.
-
-To use the LFS test server with the Git LFS client, configure it in the repository's `.lfsconfig`:
-
-
-```
-  [lfs]
-    url = "http://localhost:8080/"
-
+[Host PC]                                
+   |                                  
+   | NAT (Internet Access)             
+[VyOS Router]                          
+   |                                 
+   | eth0: 10.0.2.x/24 (NAT)
+   | eth1: 192.168.100.1/24 (LAN DHCP)
+     |
+     |-- [CentOS VM - FreeIPA] (192.168.100.10)
+     |-- [Client VM - AI Dev Env] (192.168.100.20)
 ```
 
-HTTPS:
+---
 
-NOTE: If using https with a self signed cert also disable cert checking in the client repo.
+## 🛠️ Setup Guide
 
-```
-  [lfs]
-    url = "https://localhost:8080/"
+### 1. VyOS Installation (as Router)
+- ISO: `vyos-1.5-stream-2025-Q1-generic-amd64.iso`
+- `eth0`: NAT adapter for WAN
+- `eth1`: Internal Network (`intnet`) for LAN
+- Configure:
+  ```bash
+  set interfaces ethernet eth0 address dhcp
+  set interfaces ethernet eth1 address 192.168.100.1/24
+  set service dhcp-server shared-network-name LAN subnet 192.168.100.0/24 default-router 192.168.100.1
+  set service dhcp-server shared-network-name LAN subnet 192.168.100.0/24 range 0 start 192.168.100.10
+  set service dhcp-server shared-network-name LAN subnet 192.168.100.0/24 range 0 end 192.168.100.100
+  commit; save
+  ```
 
-  [http]
-    sslverify = false
+### 2. CentOS Stream 9 Setup
+- ISO: CentOS Stream 9
+- Attach to `intnet` interface
+- Install FreeIPA Server:
+  ```bash
+  sudo dnf install freeipa-server
+  sudo ipa-server-install --setup-dns --no-forwarders
+  ```
 
-```
+### 3. DNS + Identity Management
+- Verify DNS zone setup: `ipa dnszone-find`
+- Add users, groups, roles
+- Client VMs will be joined via `ipa-client-install`
 
+---
 
-An example usage:
+## 🧠 Cybersecurity Integration
+**NCL Spring 2025:** Diamond Tier - 84th Percentile  
+This lab incorporates:
+- Hardened firewall configs
+- DNSSEC & Kerberos principles
+- Log monitoring / user auditing
+- Simulated attacks in a sandbox
 
+---
 
-Generate a key pair
-```
-openssl req -x509 -sha256 -nodes -days 2100 -newkey rsa:2048 -keyout mine.key -out mine.crt
-```
+## 🤖 AI Lab Integration
+| Tool                | Purpose                              |
+|---------------------|--------------------------------------|
+| FreeIPA + SSSD      | Secure auth for AI VMs & datasets    |
+| VS Code + GitHub    | AI model collaboration, Copilot Labs |
+| Azure CLI (Future)  | Cloud-scale identity + compute prep  |
 
-Make yourself a run script
+Use this setup to:
+- Train responsibly using shared credentials
+- Isolate AI models per user/domain
+- Test federated identity scenarios
 
-```
-#!/bin/bash
+---
 
-set -eu
-set -o pipefail
+## 📌 Next Steps
+- [ ] Finish CentOS + FreeIPA DNS & realm setup
+- [ ] Join a second Linux client to the IPA domain
+- [ ] Create documentation for student onboarding
+- [ ] Build AI prompts per student role in lab
+- [ ] Present setup at MSLE Bootcamp (May 29, 2025)
 
+---
 
-LFS_LISTEN="tcp://:9999"
-LFS_HOST="127.0.0.1:9999"
-LFS_CONTENTPATH="content"
-LFS_ADMINUSER="<cool admin user name>"
-LFS_ADMINPASS="<better admin password>"
-LFS_CERT="mine.crt"
-LFS_KEY="mine.key"
-LFS_SCHEME="https"
+## 🌱 Credits & Growth
+This journey is powered by compassion, resilience, and purpose.
+- **Mentored by:**
+  - Professor Edmstein – for introducing enterprise-grade Linux systems, virtual networking, and the power of FreeIPA as a teaching tool.
+  - Professor White – for cultivating AI literacy with heart, equity, and community-first thinking. Your AI Discovery Lab created the spark that made this journey feel like more than just an assignment — it became a mission.
+- **HSI Team & GSA at MiraCosta College** – for creating spaces where students like me feel seen, included, and empowered to build something greater than ourselves.
 
-export LFS_LISTEN LFS_HOST LFS_CONTENTPATH LFS_ADMINUSER LFS_ADMINPASS LFS_CERT LFS_KEY LFS_SCHEME
+> "Wherever truth needs a voice like yours, that’s where you belong."
 
-./lfs-test-server
+---
 
-```
+## 📁 Repo Contents
+- `/configs/` — VyOS + FreeIPA command logs
+- `/screenshots/` — Setup walkthrough visuals
+- `/scripts/` — Post-install setup automation (WIP)
+- `README.md` — This guide
 
-Build the server
+---
 
-```
-go build
-
-```
-
-Run
-
-```
-bash run.sh
-
-```
-
-Check the managment page
-
-browser: https://localhost:9999/mgmt
-
-
-## Debugging
-
-`lfs-test-server` supports a basic cmd to lookup `OID's` via the cmdline to help in debugging, eg. investigating client problems with a particular `OID` and it's properties.
-In this mode `lfs-test-server` expects the same configuration as when running in daemon mode, but will just executing the requested cmd and then exit.
-
-This is especially helpful in server environments where it's not always possible to get to the web interface easily or where it's just too slow because of DB size.
-
-`lfs-test-server cmd <OID>`
-
-Outputs the full OID record
-
-# Example
-
-```
-% . /etc/default/lfs-instancefoo    # to source server config
-% ./lfs-test-server cmd 7c9414fe21ad7b45ffb6e72da86f9a9e13dbb2971365ae7bcb8cc7fbbba7419c
-&{Oid:7c9414fe21ad7b45ffb6e72da86f9a9e13dbb2971365ae7bcb8cc7fbbba7419c Size:3334144 Existing:false}
-```
+## 📬 Contact
+**Jose Ivan Hernandez**  
+📫 [GitHub](https://github.com/JoseIvanHernandez)  
+🎓 CSIT @ MiraCosta College  
+🛡️ NCL | AI Discovery Lab | Promotor de Comunidad
